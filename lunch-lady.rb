@@ -99,7 +99,6 @@ def more_sides
   end
 end
 
-
 def order
   total = 0
   total_dishes = ''
