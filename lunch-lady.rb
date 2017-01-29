@@ -1,5 +1,6 @@
 require 'pry'
 require 'colorize'
+require_relative 'lunch-wallet'
 
 @main_dishes = [{ dish: 'Chicken Pot Pie', price: 12.00, info: 
                 { taste: 'tastes like chicken', calories: 'approx 2 million', 
@@ -36,7 +37,7 @@ end
 
 def user_main
   puts 'What is your choice?'.colorize(:light_blue)
-  @user_main_dish = gets.chomp.to_i 
+  @user_main_dish = gets.chomp.to_f 
   if @user_main_dish == 0 || @user_main_dish > 3
     puts 'Invalid option.'
     main
@@ -63,7 +64,7 @@ end
 
 def user_side_one 
   puts 'What is your first choice?'.colorize(:light_blue)
-  @first_side_dish = gets.chomp.to_i.to_i
+  @first_side_dish = gets.chomp.to_f.to_f
   if @first_side_dish == 0 || @first_side_dish > 3
     puts 'Invalid option.'
     side
@@ -105,13 +106,24 @@ def order
   @final_order.each_with_index do |item, index| 
     total_dishes += item[:dish] 
     total_dishes += ', ' unless index == @final_order.length - 1
-    total += item[:price] 
+    @total += item[:price] 
   end
   puts "You final order is:".colorize(:light_blue)
   puts total_dishes 
   puts 'Your total comes to:'.colorize(:light_blue)
-  puts "$#{total}"
-  order_complete
+  puts "$#{@total}"
+  payment
+end
+
+def payment
+  amount = Wallet.new
+  if amount >= @total 
+    order_complete
+  else
+    puts "You only have #{amount} and cannot afford this meal.".colorize(:blue)
+    puts 'Please reorder'.coloize(:light_blue)
+    user_side_two
+  end
 end
 
 def order_complete
