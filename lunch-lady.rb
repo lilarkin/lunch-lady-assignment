@@ -1,6 +1,6 @@
 require 'pry'
 require 'colorize'
-require_relative 'lunch-wallet'
+require_relative 'lunch-wallet.rb'
 
 @main_dishes = [{ dish: 'Chicken Pot Pie', price: 12.00, info: 
                 { taste: 'tastes like chicken', calories: 'approx 2 million', 
@@ -24,7 +24,13 @@ require_relative 'lunch-wallet'
 
 @final_order = []
 
-def main
+@final_payment = 0.00
+@order_total = 0.00
+
+@wallet = Wallet.new
+@wallet_amount = @wallet.get_amount
+
+def main  
   puts 'Welcome to the Cafeteria.'.colorize(:blue)
   puts 'Please look over the main dishes and choose one.'.colorize(:light_blue)
   num = 1
@@ -86,6 +92,7 @@ def user_side_two
   end 
   puts 'Exellent choice.'.colorize(:blue)
   puts 'You have ordered:'.colorize(:light_blue)
+  order
   more_sides
 end
 
@@ -96,38 +103,45 @@ def more_sides
     user_side_two
   else
     puts 'Great.'.colorize(:light_blue)
-    order
   end
+  final_order
 end
 
 def order
   total = 0
-  total_dishes = ''
+  total_dishes = ""
   @final_order.each_with_index do |item, index| 
     total_dishes += item[:dish] 
     total_dishes += ', ' unless index == @final_order.length - 1
-    @total += item[:price] 
+    total += item[:price] 
   end
-  puts "You final order is:".colorize(:light_blue)
-  puts total_dishes 
-  puts 'Your total comes to:'.colorize(:light_blue)
-  puts "$#{@total}"
-  payment
+  puts total_dishes
+  @order_total = total 
 end
 
-def payment
-  amount = Wallet.new
-  if amount >= @total 
+def final_order
+  puts "Your final order is:".colorize(:light_blue)
+  order 
+  puts 'Your total comes to:'.colorize(:light_blue)
+  puts "$#{@order_total}"
+  payment(@order_total)
+end
+
+def payment(total) 
+  if @wallet_amount >= total 
     order_complete
   else
-    puts "You only have #{amount} and cannot afford this meal.".colorize(:blue)
-    puts 'Please reorder'.coloize(:light_blue)
-    user_side_two
+    puts "You only have $#{@wallet_amount} and cannot afford this meal.".colorize(:blue)
+    puts 'Please reorder'.colorize(:light_blue)
+    @final_order = []
+    @wallet_amount += @order_total 
+    main
   end
+  # order_complete
 end
 
 def order_complete
-  puts 'Are you happy with your order: y/n?'
+  puts 'Are you happy with your order: y/n?'.colorize(:light_blue)
   happy = gets.chomp.downcase
   if happy == 'y'
     puts 'Enjoy your meal.'.colorize(:light_blue)
